@@ -18,11 +18,11 @@
             <Properties>
                 <WriteWithoutResponse>true</WriteWithoutResponse>
                 <Write>true</Write>
-                <Notify>false</Notify>
-                <Indicate>false</Indicate>
+                <Notify>true</Notify>
+                <Indicate>true</Indicate>
                 <Broadcast>false</Broadcast>
             </Properties>
-            <SetPipe>false</SetPipe>
+            <SetPipe>true</SetPipe>
             <AckIsAuto>true</AckIsAuto>
             <PresentationFormatDescriptor Value="0000" Exponent="0" Format="1" NameSpace="01" Unit="0000"/>
             <PeriodForReadingThisCharacteristic>0</PeriodForReadingThisCharacteristic>
@@ -92,8 +92,8 @@
             <Properties>
                 <WriteWithoutResponse>false</WriteWithoutResponse>
                 <Write>false</Write>
-                <Notify>false</Notify>
-                <Indicate>false</Indicate>
+                <Notify>true</Notify>
+                <Indicate>true</Indicate>
                 <Broadcast>false</Broadcast>
             </Properties>
             <SetPipe>false</SetPipe>
@@ -118,11 +118,11 @@
             <Properties>
                 <WriteWithoutResponse>true</WriteWithoutResponse>
                 <Write>true</Write>
-                <Notify>false</Notify>
-                <Indicate>false</Indicate>
+                <Notify>true</Notify>
+                <Indicate>true</Indicate>
                 <Broadcast>false</Broadcast>
             </Properties>
-            <SetPipe>false</SetPipe>
+            <SetPipe>true</SetPipe>
             <AckIsAuto>true</AckIsAuto>
             <PresentationFormatDescriptor Value="0000" Exponent="0" Format="1" NameSpace="01" Unit="0000"/>
             <PeriodForReadingThisCharacteristic>0</PeriodForReadingThisCharacteristic>
@@ -144,8 +144,8 @@
             <Properties>
                 <WriteWithoutResponse>true</WriteWithoutResponse>
                 <Write>true</Write>
-                <Notify>true</Notify>
-                <Indicate>true</Indicate>
+                <Notify>false</Notify>
+                <Indicate>false</Indicate>
                 <Broadcast>false</Broadcast>
             </Properties>
             <SetPipe>true</SetPipe>
@@ -214,11 +214,11 @@
             <Properties>
                 <WriteWithoutResponse>true</WriteWithoutResponse>
                 <Write>true</Write>
-                <Notify>false</Notify>
-                <Indicate>false</Indicate>
+                <Notify>true</Notify>
+                <Indicate>true</Indicate>
                 <Broadcast>false</Broadcast>
             </Properties>
-            <SetPipe>false</SetPipe>
+            <SetPipe>true</SetPipe>
             <AckIsAuto>true</AckIsAuto>
             <PresentationFormatDescriptor Value="0000" Exponent="0" Format="1" NameSpace="01" Unit="0000"/>
             <PeriodForReadingThisCharacteristic>0</PeriodForReadingThisCharacteristic>
@@ -228,28 +228,6 @@
     <Service Type="local" PrimaryService="true">
         <Name>BLEduino</Name>
         <Uuid BaseUUID="8C6B0000A312681D025B0032C0D16A2D" BaseUUIDName="BLEduino">2013</Uuid>
-        <Characteristic>
-            <Name>Manufacturer Name String</Name>
-            <Uuid>2a29</Uuid>
-            <DefaultValue>Kytelabs</DefaultValue>
-            <UsePresentationFormat>1</UsePresentationFormat>
-            <UserDescription></UserDescription>
-            <MaxDataLength>10</MaxDataLength>
-            <AttributeLenType>1</AttributeLenType>
-            <ForceOpen>false</ForceOpen>
-            <Properties>
-                <WriteWithoutResponse>false</WriteWithoutResponse>
-                <Write>false</Write>
-                <Notify>false</Notify>
-                <Indicate>false</Indicate>
-                <Broadcast>false</Broadcast>
-            </Properties>
-            <SetPipe>true</SetPipe>
-            <AckIsAuto>false</AckIsAuto>
-            <PresentationFormatDescriptor Value="0000" Exponent="0" Format="25" NameSpace="01" Unit="0000"/>
-            <PeriodForReadingThisCharacteristic>0</PeriodForReadingThisCharacteristic>
-            <PeriodForProperties/>
-        </Characteristic>
     </Service>
     <Service Type="local" PrimaryService="true">
         <Name>Device Information</Name>
@@ -260,7 +238,7 @@
             <DefaultValue>BLEduino</DefaultValue>
             <UsePresentationFormat>1</UsePresentationFormat>
             <UserDescription></UserDescription>
-            <MaxDataLength>15</MaxDataLength>
+            <MaxDataLength>10</MaxDataLength>
             <AttributeLenType>1</AttributeLenType>
             <ForceOpen>false</ForceOpen>
             <Properties>
@@ -358,7 +336,7 @@
             <Properties>
                 <WriteWithoutResponse>false</WriteWithoutResponse>
                 <Write>false</Write>
-                <Notify>false</Notify>
+                <Notify>true</Notify>
                 <Indicate>false</Indicate>
                 <Broadcast>false</Broadcast>
             </Properties>
@@ -371,7 +349,7 @@
     </Service>
     <Gapsettings>
         <Name>BLEduino</Name>
-        <DeviceNameWriteLength>15</DeviceNameWriteLength>
+        <DeviceNameWriteLength>20</DeviceNameWriteLength>
         <LocalPipeOnDeviceName>true</LocalPipeOnDeviceName>
         <DeviceNameShortLength>0</DeviceNameShortLength>
         <Apperance>0000</Apperance>
@@ -383,10 +361,10 @@
         <MinimumKeySize>7</MinimumKeySize>
         <MaximumKeySize>16</MaximumKeySize>
         <AdvertisingDataBondedBitmap>0</AdvertisingDataBondedBitmap>
-        <AdvertisingDataGeneralBitmap>5a</AdvertisingDataGeneralBitmap>
+        <AdvertisingDataGeneralBitmap>4a</AdvertisingDataGeneralBitmap>
         <AdvertisingDataBrodcastBitmap>0</AdvertisingDataBrodcastBitmap>
         <AdvertisingDataBondedScanResponseBitmap>0</AdvertisingDataBondedScanResponseBitmap>
-        <AdvertisingDataGeneralScanResponseBitmap>0</AdvertisingDataGeneralScanResponseBitmap>
+        <AdvertisingDataGeneralScanResponseBitmap>50</AdvertisingDataGeneralScanResponseBitmap>
         <AdvertisingDataBrodcastScanResponseBitmap>0</AdvertisingDataBrodcastScanResponseBitmap>
         <AdvertisingDataBondedBitmapCustom>0</AdvertisingDataBondedBitmapCustom>
         <AdvertisingDataGeneralBitmapCustom>0</AdvertisingDataGeneralBitmapCustom>
@@ -400,7 +378,7 @@
         <SlaveLatency>0</SlaveLatency>
         <TimeoutMultipler>65535</TimeoutMultipler>
         <ServiceToAdvertise>
-            <Uuid>180a</Uuid>
+            <Uuid BaseUUID="8C6B0000A312681D025B0032C0D16A2D" BaseUUIDName="BLEduino">2013</Uuid>
         </ServiceToAdvertise>
         <CustomAdTypes>
             <AdType index="1">
