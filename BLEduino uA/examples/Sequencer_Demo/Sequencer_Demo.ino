@@ -137,6 +137,8 @@ void write_digital(uint8_t _pin_num, uint8_t _pin_value){
 }
 
 void read_digital(uint8_t _pin_num){
+  pinMode(_pin_num, OUTPUT);
+  digitalWrite(_pin_num, LOW);
   pinMode(_pin_num, INPUT);
 
   byte value[4];
@@ -154,7 +156,10 @@ void write_pwm(uint8_t _pin_num, uint8_t _pin_value){
 }
 
 void read_analog(uint8_t _pin_num){
+  pinMode(_pin_num, OUTPUT);
+  digitalWrite(_pin_num, LOW);
   pinMode(_pin_num, INPUT);
+  
   int value = analogRead(_pin_num);
 
   if(value <= 255){ 
