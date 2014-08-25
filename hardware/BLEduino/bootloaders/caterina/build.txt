@@ -1,0 +1,3 @@
+make clean
+make all VID=0x1D50 PID=0x808A F_CPU=16000000
+copy Caterina.hex Caterina-BLEduino.hex
