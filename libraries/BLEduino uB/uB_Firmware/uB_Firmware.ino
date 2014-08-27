@@ -1,3 +1,6 @@
+//This is a modified version of the Nordic Arduino SDK
+//by Angel Viera
+
 /* Copyright (c) 2009 Nordic Semiconductor. All Rights Reserved.
  *
  * The information contained herein is property of Nordic Semiconductor ASA.
@@ -8,29 +11,8 @@
  * WARRANTY of ANY KIND is provided. This heading must NOT be removed from
  * the file.
  *
- * $LastChangedRevision$
- */
- 
-/**
- * My project template
  */
 
-/** @defgroup my_project my_project
-@{
-@ingroup projects
-@brief Empty project that can be used as a template for new projects.
-
-@details
-This project is a firmware template for new projects. 
-The project will run correctly in its current state, but does nothing. 
-With this project you have a starting point for adding your own application functionality.
-
-The following instructions describe the steps to be made on the Windows PC:
-
- -# Install the Master Control Panel on your computer. Connect the Master Emulator 
-    (nRF2739) and make sure the hardware drivers are installed.
-    
- */
 #include <SPI.h>
 #include <avr/pgmspace.h>
 #include <ble_system.h>
@@ -45,6 +27,7 @@ The following instructions describe the steps to be made on the Windows PC:
 Put the nRF8001 setup in the RAM of the nRF8001.
 */
 #include "services.h"
+
 /**
 Include the services_lock.h to put the setup in the OTP memory of the nRF8001.
 This would mean that the setup cannot be changed once put in.
@@ -86,20 +69,11 @@ void setup(void)
 { 
   
   pinMode(BLE_LED, OUTPUT);
-  //digitalWrite(BLE_LED,HIGH); //DEBUG
-  
-  //delay(1000); //DEBUG
   
   digitalWrite(BLE_LED, LOW);
-  //debug
-  //digitalWrite(BLE_LED, HIGH);
-  //delay(10000);
-  //digitalWrite(BLE_LED, LOW);
-  ///debug
   
   //Start communication with µA
   Serial.begin(57600);
-  //Serial.println(F("Arduino setup"));
   
   if (NULL != services_pipe_type_mapping)
   {
@@ -113,7 +87,7 @@ void setup(void)
   aci_state.aci_setup_info.setup_msgs         = setup_msgs;
   aci_state.aci_setup_info.num_setup_msgs     = NB_SETUP_MESSAGES;
   
-  //BLEduino won't start advertising until you send call lib_aci_init(&aci_state)
+  //BLEduino won't start advertising until you call lib_aci_init(&aci_state)
 }
 
 /***********************************************************************************
@@ -141,10 +115,15 @@ void loop(){
     read_from_A();
     sleep++;
   }
-  
+
+  //SLEEP HERE
   if(sleep_enable == 1 && sleep == 0){ 
-    //SLEEP HERE
-    sleep_now(); //DANGER DANGER
+
+    //DANGER DANGER 
+    //There is a bug with sleep.  If sleep is enabled in the 328p, and Pin 7 on the ATmega32u4 is triggered HIGH,
+    //then the 328p will stay asleep until reset.  So if you need low power, and don't mind keeping Pin 7 low, 
+    //then from the BLEduino do sendCommand(COMMAND_SLEEP_TOGGLE);
+    sleep_now(); 
   }
   
 }
@@ -171,18 +150,16 @@ void aci_loop(){
             /**
             When the device is in the setup mode
             */
-            //Serial.println(F("Evt Device Started: Setup"));
+            
             if (ACI_STATUS_TRANSACTION_COMPLETE != do_aci_setup(&aci_state))
             {
-              //Serial.println(F("Error in ACI Setup"));
+              //Error in ACI setup
             }
             //Serial.println(F("Setup Done!"));
             break;
             
-            case ACI_DEVICE_STANDBY:
-              //Serial.println(F("Evt Device Started: Standby"));
+            case ACI_DEVICE_STANDBY: 
               lib_aci_connect(180/* in seconds */, 0x0100 /* advertising interval 100ms*/);
-              //Serial.println(F("Advertising started"));
               break;
           }
         }
@@ -196,9 +173,6 @@ void aci_loop(){
           //ACI ReadDynamicData and ACI WriteDynamicData will have status codes of
           //TRANSACTION_CONTINUE and TRANSACTION_COMPLETE
           //all other ACI commands will have status code of ACI_STATUS_SCUCCESS for a successful command
-          //Serial.print(F("ACI Command "));
-          //Serial.println(aci_evt->params.cmd_rsp.cmd_opcode, HEX);
-          //Serial.println(F("Evt Cmd respone: Error. Arduino is in an while(1); loop"));
           
           int brightness = 0;    // how bright the LED is
           int fadeAmount = 5;    // how many points to fade the LED by
@@ -224,26 +198,20 @@ void aci_loop(){
         digitalWrite(BLE_LED, HIGH);
         device_connected = true;
         send_connect_status();
-        
-        //send connected status to µA TODO
-        
-        //Serial.println(F("Evt Connected"));
+
         //aci_state.data_credit_available = aci_state.data_credit_total; 
         break;
         
       case ACI_EVT_PIPE_STATUS:
-        //Serial.println(F("Evt Pipe Status"));
         break;
         
       case ACI_EVT_DISCONNECTED:
         digitalWrite(BLE_LED, LOW);
         device_connected = false;
         send_connect_status();
-        //send disconnected status to µA TODO
         
-        //Serial.println(F("Evt Disconnected/Advertising timed out"));
-        lib_aci_connect(180/* in seconds */, 0x0100 /* advertising interval 100ms*/);
-        //Serial.println(F("Advertising started"));        
+        //advertise again
+        lib_aci_connect(180/* in seconds */, 0x0100 /* advertising interval 100ms*/);      
         break;
         
       case ACI_EVT_DATA_CREDIT:
@@ -262,10 +230,9 @@ void aci_loop(){
         break;  
         
       case ACI_EVT_DATA_RECEIVED:
-        //Serial.print(F("Pipe #: 0x"));
-        //Serial.println(aci_evt->params.data_received.rx_data.pipe_number, HEX);
-        
+
         parse_BLE_data(aci_evt);
+
         break; 
      
      default: //I don't care about anything here, I'm sleepy.
@@ -274,7 +241,7 @@ void aci_loop(){
 }
 
 /***********************************************************************************
-PARSE_BLE_DATA from BLE
+PARSE_BLE_DATA from Antenna
 ***********************************************************************************/
 void parse_BLE_data(aci_evt_t * aci_evt){
 
@@ -283,12 +250,11 @@ void parse_BLE_data(aci_evt_t * aci_evt){
     
     case PIPE_CONTROLLER__BUTTON_ACTION_RX:
     case PIPE_CONTROLLER__BUTTON_ACTION_RX_ACK_AUTO:
-      //Debug
-      //Serial.println("Data Received on pipe: PIPE_CONTROLLER__BUTTON_ACTION_RX");
+      
       //Parse virtual controller data
       uint8_t controller_packet_in[5];
       controller_packet_in[0] = aci_evt->params.data_received.rx_data.pipe_number; //pipe number
-      controller_packet_in[1] = 3; //4 bytes not counting length byte.
+      controller_packet_in[1] = 3; //4 bytes not counting length byte. (this byte)
       controller_packet_in[2] = aci_evt->params.data_received.rx_data.aci_data[0]; //button name
       controller_packet_in[3] = aci_evt->params.data_received.rx_data.aci_data[1]; //button state [0 pressed/1 unpressed]
       controller_packet_in[4] = aci_evt->params.data_received.rx_data.aci_data[2]; //joystick value [0 min-128 neutral-255 max]
@@ -299,8 +265,7 @@ void parse_BLE_data(aci_evt_t * aci_evt){
     
     case PIPE_FIRMATA_FIRMATA_COMMAND_RX:
     case PIPE_FIRMATA_FIRMATA_COMMAND_RX_ACK_AUTO:
-      //Debug
-      //Serial.println("Data Received on pipe: PIPE_FIRMATA_FIRMATA_COMMAND_RX");
+      
       //Parse firmata data
       uint8_t firmata_packet_in[5];
       firmata_packet_in[0] = aci_evt->params.data_received.rx_data.pipe_number; //pipe number
@@ -315,10 +280,6 @@ void parse_BLE_data(aci_evt_t * aci_evt){
     
     case PIPE_UART_RX_RX:
     case PIPE_UART_RX_RX_ACK_AUTO:
-      
-      //Debug
-      //Serial.println("Data Received on pipe: PIPE_UART_RX_RX");
-      
     {//new scope (switch-case fix)
       
       uint8_t ble_packet_length = (aci_evt->len) - 2;
@@ -352,19 +313,14 @@ void parse_BLE_data(aci_evt_t * aci_evt){
     
     case PIPE_BLE_BRIDGE_BRIDGE_RX_RX:
     case PIPE_BLE_BRIDGE_BRIDGE_RX_RX_ACK_AUTO:
-      //Debug
-      //Serial.println("Data Received on pipe: PIPE_BLE_BRIDGE_BRIDGE_RX_RX");
       
-      //[source, destination, first 0-transit 1-last 2, data...]
+      //[source, destination, first 0 - transit 1 - last 2, data...]
       {//new scope (switch-case fix)
       uint8_t ble_packet_length = (aci_evt->len) - 2;
       uint8_t bridge_packet_in[ble_packet_length + 2];  
       
       bridge_packet_in[0] = aci_evt->params.data_received.rx_data.pipe_number; //pipe number
       bridge_packet_in[1] = ble_packet_length; //data length
-      //bridge_packet_in[1] = aci_evt->params.data_received.rx_data.aci_data[0]; //source (dude who sent it)
-      //bridge_packet_in[2] = aci_evt->params.data_received.rx_data.aci_data[1]; //destination (me)
-      //bridge_packet_in[3] = aci_evt->params.data_received.rx_data.aci_data[2]; //first 0, transit 1, last 2
       
       int i = 0;
       for(i = 0; i < ble_packet_length; i++){
@@ -374,16 +330,13 @@ void parse_BLE_data(aci_evt_t * aci_evt){
       Serial.write(bridge_packet_in, ble_packet_length + 2);
     }
       //Read data from another BLEduino.  Sent raw, just like the UART pipe.
-      //Send raw data to µA.  First byte will probably be the ID of the BLEduino that sent the data.
+      //Send raw data to µA.  First byte will be the ID of the BLEduino that sent the data.
     break;//////////////////////////////////////////
     
     case PIPE_VEHICLE_MOTION_THROTTLE_YAW_ROLL_PITCH_RX:
     case PIPE_VEHICLE_MOTION_THROTTLE_YAW_ROLL_PITCH_RX_ACK_AUTO:
-      //Debug
-      //Serial.println("Data Received on pipe: PIPE_VEHICLE_MOTION_THROTTLE_YAW_ROLL_PITCH_RX");
       
       //Parse vehicle control data.
-      //throttle, yaw, roll, pitch
       uint8_t vehicle_motion_packet_in[6];
       vehicle_motion_packet_in[0] = aci_evt->params.data_received.rx_data.pipe_number; //pipe number
       vehicle_motion_packet_in[1] = 4; //data length
@@ -399,7 +352,7 @@ void parse_BLE_data(aci_evt_t * aci_evt){
 }
 
 /***********************************************************************************
-READ_FROM_A
+READ_FROM_A Send to antenna
 ***********************************************************************************/
 uint8_t inBuf[28];
 
@@ -423,7 +376,6 @@ void read_from_A(){
         digitalWrite(BLE_LED, LOW);
         lib_aci_init(&aci_state);
         device_started = true;
-        //Serial.println("RESET");
       }
         break;
         
@@ -444,29 +396,30 @@ void read_from_A(){
       
       case 0xB7: //hardcode BLE led on-off [0xC0, 0xB7, 0x01 || 0x00]
       {
-        //hardcode that shit
         digitalWrite(BLE_LED, inBuf[2]);
-        //Serial.println("LED TOGGLED!");
       }
         break;
       
       case 0xCB: //change baud-rate 
       {
+        //NOTE: This will not work with the Kickstarter BLEduinos.  
+        //I had set the baud_options[] as an int, so all baud rates above 32,000 will not work.
+
         //[0xC0, 0xCB, baud-options: 0-4800, 1-9600, 2-14400, 3-19200, 4-28800, 5-31250, 6-38400, 7-57600]
-        int baud_options[] = {4800, 9600, 14400, 19200, 28800, 31250, 38400, 57600}; //CHANGE TO UNSIGNED LONG
+        unsigned long baud_options[] = {4800, 9600, 14400, 19200, 28800, 31250, 38400, 57600};
         
         Serial.begin(baud_options[inBuf[2]]);
       }
         break;
       
-      case 0x71: //change timing? [0xC0, 0x71, ...]
-        //change timing and shit
+      case 0x71: //change timing
+        //I have no idea what this does.  So I'll leave it commented.  But experiment away!
         //lib_aci_change_timing_GAP_PPCP();
         break;
       
-      case 0x7E: //test mode [0xC0, 0x7E]
+      case 0x7E: //test mode
         //toggle nRF8001 in & out of test mode
-        //research this better
+        //TODO
         break;
         
       case 0x5E: //sleep enable
@@ -477,16 +430,6 @@ void read_from_A(){
       case 0xCD: //change device name "PIPE_GAP_DEVICE_NAME_SET" [0xC0, 0xCD, ...]
       {
         //read new BLEduino name.
-        /*
-        uint8_t new_device_name_size = data_length - 1;
-        uint8_t new_device_name[new_device_name_size];
-        
-        int i=0;
-        for(i=0; i < new_device_name_size; i++){
-          new_device_name[i] = Serial.read();
-        }
-        */
-        
         lib_aci_set_local_data(&aci_state, PIPE_GAP_DEVICE_NAME_SET, (uint8_t *)&inBuf[2], data_length - 2);
         }
         break;
@@ -507,17 +450,7 @@ void read_from_A(){
         //NOT USED
         //Serial.println("Sending data to pipe: PIPE_CONTROLLER__BUTTON_ACTION_TX");
         break;
-      /*
-      case PIPE_FIRMATA_FIRMATA_COMMAND_TX:
-      case PIPE_FIRMATA_FIRMATA_COMMAND_TX_ACK:
-        //read firmata data and send on those pipes.
-        //Pin_number, pin_state[1-input, 3-analog], 2 bytes[0-1023]
-        
-        //send that shit
-        lib_aci_send_data(destination_pipe,(uint8_t *)&inBuf[2], data_length-2);
-        break;
-      */
-      
+
       case PIPE_FIRMATA_FIRMATA_COMMAND_TX:
       case PIPE_FIRMATA_FIRMATA_COMMAND_TX_ACK:
         //read firmata data and send on those pipes.
@@ -531,44 +464,17 @@ void read_from_A(){
       case PIPE_BLE_BRIDGE_BRIDGE_TX_TX:
       case PIPE_BLE_BRIDGE_BRIDGE_TX_TX_ACK:
       {
-        /*
-        //read raw UART data
-        uint8_t uart_packet_out_size = Serial.available();
-        uint8_t uart_packet_out[uart_packet_out_size];
-        
-        int i=0;
-        for(i=0; i < uart_packet_out_size; i++){
-          uart_packet_out[i] = Serial.read();
-        }
-        
-        //send
-        lib_aci_send_data(destination_pipe,(uint8_t *)&uart_packet_out[0] ,uart_packet_out_size);
-        */
-        //Serial.println("Entered Big-Ass case.  Sending data.");
+       
         lib_aci_send_data(destination_pipe,(uint8_t *)&inBuf[2], data_length-2); 
-        //Serial.println("Data Sent"); 
     }
         break;
         
      case PIPE_BLE_BRIDGE_DEVICE_ID_SET:
      {
-        //read name of this bleduino (1 byte)
-        
-        //send
-        //Serial.println("BLE_BRIDGE_DEVICE_ID_SET.  Setting.");
+        //set name of this bleduino (1 byte)
         lib_aci_set_local_data(&aci_state, PIPE_BLE_BRIDGE_DEVICE_ID_SET, (uint8_t *)&inBuf[2], data_length-2);
-        //Serial.println("Data set");
      }
         break;
-        
-      /*
-      case PIPE_BLE_BRIDGE_BRIDGE_TX_TX:
-      case PIPE_BLE_BRIDGE_BRIDGE_TX_TX_ACK:
-        //read bridge data
-        //first byte is name of destination
-        //send
-      
-      */
       
       case PIPE_VEHICLE_MOTION_THROTTLE_YAW_ROLL_PITCH_TX:
       case PIPE_VEHICLE_MOTION_THROTTLE_YAW_ROLL_PITCH_TX_ACK:
@@ -582,6 +488,9 @@ void read_from_A(){
   }
 }
 
+/***********************************************************************************
+SEND_CONNECT_STATUS
+***********************************************************************************/
 void send_connect_status(){
   uint8_t is_connected_response[3];
   is_connected_response[0] = 0; // "pipe"
@@ -593,8 +502,10 @@ void send_connect_status(){
 /***********************************************************************************
 SLEEP
 ***********************************************************************************/
-void sleep_now() //HIGH VOLTAGE
+void sleep_now() //CAREFUL
 {
+    //Sleep code taken from www.nongnu.org
+
     /* Now is the time to set the sleep mode. In the Atmega8 datasheet
      * http://www.atmel.com/dyn/resources/prod_documents/doc2486.pdf on page 35
      * there is a list of sleep modes which explains which clocks and 
