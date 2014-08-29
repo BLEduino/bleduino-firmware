@@ -477,7 +477,7 @@ void BLEduino::print_all(){
     Serial.print("Packet["); Serial.print(i); Serial.print("].next = ");
     Serial.println(_receive_buffer[i].next);
 
-    for(uint8_t k = 0; k < 20; k++){
+    for(uint8_t k = 0; k < _SS_MAX_PACKET_LENGTH; k++){
       Serial.print("Packet["); Serial.print(i); Serial.print("].data["); Serial.print(k); Serial.print("] = ");
       Serial.println(_receive_buffer[i].data[k], HEX);
     }
@@ -596,7 +596,7 @@ uint8_t BLEduino::available(uint8_t pipe)
 }
 
 //send packet
-uint8_t BLEduino::sendData(uint8_t pipe, uint8_t* data, uint8_t size){
+void BLEduino::sendData(uint8_t pipe, uint8_t* data, uint8_t size){
   //Packet structure [data-length | data-byte (0xDA) | pipe | data(...) ]
   active_object->write(size + 2);
   active_object->write(0xDA);
@@ -605,21 +605,18 @@ uint8_t BLEduino::sendData(uint8_t pipe, uint8_t* data, uint8_t size){
   for(uint8_t i = 0; i < size; i++){
     active_object->write(data[i]);
   }
-
-  return 1;
 }
 
-uint8_t BLEduino::sendData(uint8_t pipe, uint8_t data){
+void BLEduino::sendData(uint8_t pipe, uint8_t data){
   //Packet structure [data-length | data-byte (0xDA) | pipe | data ]
   active_object->write(3);
   active_object->write(0xDA);
   active_object->write(pipe);
   active_object->write(data);
 
-  return 1;
 }
 
-uint8_t BLEduino::sendCommand(uint8_t command){
+void BLEduino::sendCommand(uint8_t command){
 
   switch(command){
 
@@ -721,7 +718,6 @@ uint8_t BLEduino::sendCommand(uint8_t command){
     break;
 
     case COMMAND_CHANGE_DEVICE_NAME:
-      //Figure this one out, since it needs a parameter
       //For now, this is dealt with in the read_packet function.
     break;
 
@@ -729,11 +725,10 @@ uint8_t BLEduino::sendCommand(uint8_t command){
 
   delay(100);
 
-  return 1;
 }
 
 //write single byte at 31250 baud
-uint8_t BLEduino::write(uint8_t b)
+void BLEduino::write(uint8_t b)
 {
 
   uint8_t oldSREG = SREG;
@@ -772,11 +767,10 @@ uint8_t BLEduino::write(uint8_t b)
 
   //PORTC = PORTC & B01111111; //Debug pulse pin 3 end
 
-  return 1;
 }
 
 //Writes at 57600 baud
-uint8_t BLEduino::write_fast(uint8_t b){
+void BLEduino::write_fast(uint8_t b){
   uint8_t oldSREG = SREG;
   cli();  // turn off interrupts for a clean txmit
 
@@ -813,7 +807,6 @@ uint8_t BLEduino::write_fast(uint8_t b){
 
   //PORTC = PORTC & B01111111; //Debug pulse pin 3 end
 
-  return 1;
 }
 
 void BLEduino::flush()

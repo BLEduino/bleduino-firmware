@@ -285,11 +285,11 @@ public:
   BLEPacket read(uint8_t pipe); 
   uint8_t available(); 
   uint8_t available(uint8_t pipe); 
-  uint8_t sendData(uint8_t pipe, uint8_t* data, uint8_t size);
-  uint8_t sendData(uint8_t pipe, uint8_t data);
-  uint8_t sendCommand(uint8_t command); 
-  uint8_t write(uint8_t b); 
-  uint8_t write_fast(uint8_t b);
+  void sendData(uint8_t pipe, uint8_t* data, uint8_t size);
+  void sendData(uint8_t pipe, uint8_t data);
+  void sendCommand(uint8_t command); 
+  void write(uint8_t b); 
+  void write_fast(uint8_t b);
   void flush(); 
   void flush(uint8_t pipe);
   BLEPacket peek(); 
