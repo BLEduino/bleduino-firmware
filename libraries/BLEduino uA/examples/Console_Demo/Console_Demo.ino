@@ -39,7 +39,9 @@ void loop(){
     ||      0      |      1      | ... |      N      ||
     || Character 0 | Character 1 | ... | Character N ||
     ***************************************************/
-    
+
+    Serial.print("ios: ");
+
     //Print each character
     for(int i = 0; i < length; i++){
       Serial.print((char)data[i]);
@@ -59,19 +61,26 @@ void loop(){
     byte length = Serial.available();
     byte message[20];
 
+    Serial.print("bleduino: ");
+
     for(int i = 0; i < length; i++){
       message[i] = Serial.read();
+      Serial.print((char) message[i]);
     }
 
     BLE.sendData(UART_SEND, message, length);
 
-    Serial.println("Message Sent");
+    Serial.println("");
   }
 }
 
 bool check_size(){
   if(Serial.available() > 20){
-    Serial.flush();
+    
+    //flush
+    while(Serial.available()){
+      Serial.read();
+    }
 
     Serial.println("Message can be 20 characters max.");
     
@@ -80,4 +89,3 @@ bool check_size(){
   
   return 1;
 }
-
